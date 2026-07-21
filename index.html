@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <title>CVDmeme</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <h1>Bienvenue dans CVDmeme 🎉</h1>
+
+    <input type="text" id="pseudo" placeholder="Ton pseudo">
+    <button onclick="ajouterJoueur()">Ajouter</button>
+    <p id="message"></p>
+
+    <h2>Joueurs :</h2>
+    <ul id="listeJoueurs"></ul>
+
+    <h2>Salle :</h2>
+    <button onclick="creerSalle()">Créer une salle</button>
+    <p id="codeSalle"></p>
+    <script src="/socket.io/socket.io.js"></script>
+    <script src="script.js"></script>
+</body>
+</html>
