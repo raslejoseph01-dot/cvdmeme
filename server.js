@@ -18,7 +18,7 @@ io.on("connection", (socket) => {
         const code = donnees.code;
 
         if (!salles[code]) {
-            salles[code] = { joueurs: [] };
+            salles[code] = { joueurs: [], phrases: [] };
         }
 
         socket.join(code);
@@ -31,6 +31,27 @@ io.on("connection", (socket) => {
             code: code,
             joueurs: salles[code].joueurs
         });
+    });
+
+    socket.on("demarrerPartie", (code) => {
+        if (salles[code]) {
+            io.to(code).emit("partieDemarree");
+        }
+    });
+
+    socket.on("envoyerPhrase", (donnees) => {
+        const code = donnees.code;
+        const texte = donnees.texte;
+        const pseudo = socket.data.pseudo;
+
+        if (salles[code]) {
+            salles[code].phrases.push({ pseudo: pseudo, texte: texte });
+
+            io.to(code).emit("statutEcriture", {
+                nombrePhrases: salles[code].phrases.length,
+                nombreJoueurs: salles[code].joueurs.length
+            });
+        }
     });
 
     socket.on("disconnect", () => {
