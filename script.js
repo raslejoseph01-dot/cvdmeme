@@ -111,3 +111,38 @@ socket.on("statutVisuel", (donnees) => {
     document.getElementById("messageVisuel").textContent =
         donnees.nombreVisuels + " sur " + donnees.nombreJoueurs + " joueurs ont choisi leur visuel.";
 });
+let revealListe = [];
+let revealIndex = 0;
+
+socket.on("demarrerReveal", (liste) => {
+    document.getElementById("ecranPhraseRecue").style.display = "none";
+    document.getElementById("ecranReveal").style.display = "block";
+
+    revealListe = liste;
+    revealIndex = 0;
+
+    afficherRevealActuel();
+});
+
+function afficherRevealActuel() {
+    const association = revealListe[revealIndex];
+
+    document.getElementById("revealPhrase").textContent = association.phrase;
+
+    const zoneVisuel = document.getElementById("revealVisuel");
+    zoneVisuel.innerHTML = "";
+    const image = document.createElement("img");
+    image.src = association.lien;
+    image.style.maxWidth = "300px";
+    zoneVisuel.appendChild(image);
+
+    document.getElementById("revealCompteur").textContent =
+        (revealIndex + 1) + " / " + revealListe.length;
+
+    setTimeout(() => {
+        revealIndex++;
+        if (revealIndex < revealListe.length) {
+            afficherRevealActuel();
+        }
+    }, 4000);
+}

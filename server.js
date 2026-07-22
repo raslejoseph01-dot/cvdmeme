@@ -43,6 +43,23 @@ function attribuerPhrases(code) {
     }
 }
 
+function lancerReveal(code) {
+    const salle = salles[code];
+    const listeReveal = [];
+
+    for (const visuel of salle.visuels) {
+        const pseudoQuiAChoisi = visuel.pseudo;
+        const phraseOriginale = salle.attributions[pseudoQuiAChoisi];
+
+        listeReveal.push({
+            phrase: phraseOriginale,
+            lien: visuel.lien
+        });
+    }
+
+    io.to(code).emit("demarrerReveal", listeReveal);
+}
+
 io.on("connection", (socket) => {
     console.log("Un joueur s'est connecté !");
 
@@ -103,6 +120,10 @@ io.on("connection", (socket) => {
                 nombreVisuels: salles[code].visuels.length,
                 nombreJoueurs: salles[code].joueurs.length
             });
+
+            if (salles[code].visuels.length === salles[code].joueurs.length) {
+                lancerReveal(code);
+            }
         }
     });
 
