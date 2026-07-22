@@ -141,6 +141,8 @@ io.on("connection", (socket) => {
 
     socket.on("demarrerPartie", (code) => {
         if (salles[code]) {
+            salles[code].phrases = [];
+            salles[code].visuels = [];
             io.to(code).emit("partieDemarree");
         }
     });
