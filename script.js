@@ -73,3 +73,37 @@ socket.on("phraseAAssocier", (phrase) => {
     document.getElementById("ecranPhraseRecue").style.display = "block";
     document.getElementById("affichagePhraseRecue").textContent = phrase;
 });
+document.addEventListener("DOMContentLoaded", () => {
+    const champLien = document.getElementById("lienImage");
+    if (champLien) {
+        champLien.addEventListener("input", () => {
+            afficherApercu(champLien.value.trim());
+        });
+    }
+});
+
+function afficherApercu(lien) {
+    const apercu = document.getElementById("apercuVisuel");
+    apercu.innerHTML = "";
+
+    if (lien === "") {
+        return;
+    }
+
+    const image = document.createElement("img");
+    image.src = lien;
+    image.style.maxWidth = "300px";
+    apercu.appendChild(image);
+}
+
+function validerVisuel() {
+    const lien = document.getElementById("lienImage").value.trim();
+
+    if (lien === "") {
+        document.getElementById("messageVisuel").textContent = "Merci de coller un lien !";
+        return;
+    }
+
+    socket.emit("envoyerVisuel", { code: monCode, lien: lien });
+    document.getElementById("messageVisuel").textContent = "Visuel envoyé, en attente des autres...";
+}

@@ -33,6 +33,12 @@
     <div id="ecranPhraseRecue" style="display: none;">
         <h2>Voici la phrase à illustrer :</h2>
         <p id="affichagePhraseRecue"></p>
+
+        <input type="text" id="lienImage" placeholder="Colle un lien d'image ou de GIF ici">
+        <button onclick="validerVisuel()">Valider ce visuel</button>
+        <p id="messageVisuel"></p>
+
+        <div id="apercuVisuel"></div>
     </div>
 
     <script src="/socket.io/socket.io.js"></script>

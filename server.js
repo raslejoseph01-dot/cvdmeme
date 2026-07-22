@@ -9,6 +9,7 @@ const io = new Server(serveur);
 app.use(express.static("."));
 
 const salles = {};
+
 function melangerTableau(tableau) {
     const copie = [...tableau];
 
@@ -40,7 +41,8 @@ function attribuerPhrases(code) {
             socketConnecte.emit("phraseAAssocier", phraseAEnvoyer);
         }
     }
-};
+}
+
 io.on("connection", (socket) => {
     console.log("Un joueur s'est connecté !");
 
@@ -49,7 +51,7 @@ io.on("connection", (socket) => {
         const code = donnees.code;
 
         if (!salles[code]) {
-            salles[code] = { joueurs: [], phrases: [] };
+            salles[code] = { joueurs: [], phrases: [], visuels: [] };
         }
 
         socket.join(code);
@@ -86,6 +88,21 @@ io.on("connection", (socket) => {
             if (salles[code].phrases.length === salles[code].joueurs.length) {
                 attribuerPhrases(code);
             }
+        }
+    });
+
+    socket.on("envoyerVisuel", (donnees) => {
+        const code = donnees.code;
+        const lien = donnees.lien;
+        const pseudo = socket.data.pseudo;
+
+        if (salles[code]) {
+            salles[code].visuels.push({ pseudo: pseudo, lien: lien });
+
+            io.to(code).emit("statutVisuel", {
+                nombreVisuels: salles[code].visuels.length,
+                nombreJoueurs: salles[code].joueurs.length
+            });
         }
     });
 
