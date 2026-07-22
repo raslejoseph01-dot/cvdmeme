@@ -107,3 +107,7 @@ function validerVisuel() {
     socket.emit("envoyerVisuel", { code: monCode, lien: lien });
     document.getElementById("messageVisuel").textContent = "Visuel envoyé, en attente des autres...";
 }
+socket.on("statutVisuel", (donnees) => {
+    document.getElementById("messageVisuel").textContent =
+        donnees.nombreVisuels + " sur " + donnees.nombreJoueurs + " joueurs ont choisi leur visuel.";
+});
