@@ -206,6 +206,11 @@ io.on("connection", (socket) => {
         const nombreVotants = salle.joueurs.length - 1;
         const nombreVotes = Object.keys(salle.votesActuels).length;
 
+        io.to(code).emit("statutVote", {
+            nombreVotes: nombreVotes,
+            nombreVotants: nombreVotants
+        });
+
         if (nombreVotes >= nombreVotants) {
             if (!salle.timerReveal) {
                 salle.timerReveal = setTimeout(() => {

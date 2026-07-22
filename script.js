@@ -126,6 +126,7 @@ socket.on("revealItem", (item) => {
     pseudoAuteurActuel = item.pseudoAuteur;
     aDejaVote = false;
     document.getElementById("messageVote").textContent = "";
+    document.getElementById("statutVote").textContent = "";
 
     const zoneVisuel = document.getElementById("revealVisuel");
     zoneVisuel.innerHTML = "";
@@ -171,4 +172,8 @@ socket.on("classementFinal", (classement) => {
         item.textContent = joueur.pseudo + " : " + joueur.points + " pts";
         liste.appendChild(item);
     }
+});
+socket.on("statutVote", (donnees) => {
+    document.getElementById("statutVote").textContent =
+        donnees.nombreVotes + " sur " + donnees.nombreVotants + " ont voté.";
 });
