@@ -19,6 +19,15 @@
         <h2>Salle : <span id="affichageCodeSalle"></span></h2>
         <h3>Joueurs :</h3>
         <ul id="listeJoueurs"></ul>
+        <button onclick="demarrerPartie()">Démarrer la partie</button>
+    </div>
+
+    <div id="ecranEcriture" style="display: none;">
+        <h2>Écris une phrase drôle !</h2>
+        <input type="text" id="phrase" placeholder="Ta phrase">
+        <button onclick="envoyerPhrase()">Valider</button>
+        <p id="messageEcriture"></p>
+        <p id="statutEcriture"></p>
     </div>
 
     <script src="/socket.io/socket.io.js"></script>
