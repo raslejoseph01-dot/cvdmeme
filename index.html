@@ -8,16 +8,19 @@
 <body>
     <h1>Bienvenue dans CVDmeme 🎉</h1>
 
-    <input type="text" id="pseudo" placeholder="Ton pseudo">
-    <button onclick="ajouterJoueur()">Ajouter</button>
-    <p id="message"></p>
+    <div id="ecranAccueil">
+        <input type="text" id="pseudo" placeholder="Ton pseudo">
+        <input type="text" id="codeSalle" placeholder="Code de la salle">
+        <button onclick="rejoindreSalle()">Rejoindre / Créer</button>
+        <p id="message"></p>
+    </div>
 
-    <h2>Joueurs :</h2>
-    <ul id="listeJoueurs"></ul>
+    <div id="ecranSalle" style="display: none;">
+        <h2>Salle : <span id="affichageCodeSalle"></span></h2>
+        <h3>Joueurs :</h3>
+        <ul id="listeJoueurs"></ul>
+    </div>
 
-    <h2>Salle :</h2>
-    <button onclick="creerSalle()">Créer une salle</button>
-    <p id="codeSalle"></p>
     <script src="/socket.io/socket.io.js"></script>
     <script src="script.js"></script>
 </body>
