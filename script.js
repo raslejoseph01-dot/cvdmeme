@@ -73,6 +73,7 @@ socket.on("phraseAAssocier", (phrase) => {
     document.getElementById("ecranPhraseRecue").style.display = "block";
     document.getElementById("affichagePhraseRecue").textContent = phrase;
 });
+
 document.addEventListener("DOMContentLoaded", () => {
     const champLien = document.getElementById("lienImage");
     if (champLien) {
@@ -107,42 +108,67 @@ function validerVisuel() {
     socket.emit("envoyerVisuel", { code: monCode, lien: lien });
     document.getElementById("messageVisuel").textContent = "Visuel envoyé, en attente des autres...";
 }
+
 socket.on("statutVisuel", (donnees) => {
     document.getElementById("messageVisuel").textContent =
         donnees.nombreVisuels + " sur " + donnees.nombreJoueurs + " joueurs ont choisi leur visuel.";
 });
-let revealListe = [];
-let revealIndex = 0;
 
-socket.on("demarrerReveal", (liste) => {
+let pseudoAuteurActuel = "";
+let aDejaVote = false;
+
+socket.on("revealItem", (item) => {
     document.getElementById("ecranPhraseRecue").style.display = "none";
     document.getElementById("ecranReveal").style.display = "block";
+    document.getElementById("ecranClassement").style.display = "none";
 
-    revealListe = liste;
-    revealIndex = 0;
-
-    afficherRevealActuel();
-});
-
-function afficherRevealActuel() {
-    const association = revealListe[revealIndex];
-
-    document.getElementById("revealPhrase").textContent = association.phrase;
+    document.getElementById("revealPhrase").textContent = item.phrase;
+    pseudoAuteurActuel = item.pseudoAuteur;
+    aDejaVote = false;
+    document.getElementById("messageVote").textContent = "";
 
     const zoneVisuel = document.getElementById("revealVisuel");
     zoneVisuel.innerHTML = "";
     const image = document.createElement("img");
-    image.src = association.lien;
+    image.src = item.lien;
     image.style.maxWidth = "300px";
     zoneVisuel.appendChild(image);
 
-    document.getElementById("revealCompteur").textContent =
-        (revealIndex + 1) + " / " + revealListe.length;
+    if (monPseudo === pseudoAuteurActuel) {
+        document.getElementById("zoneVote").style.display = "none";
+        document.getElementById("messageVote").textContent = "C'est ton visuel, tu ne peux pas voter dessus !";
+    } else {
+        document.getElementById("zoneVote").style.display = "block";
+    }
 
-    setTimeout(() => {
-        revealIndex++;
-        if (revealIndex < revealListe.length) {
-            afficherRevealActuel();
-        }
-    }, 4000);
+    document.getElementById("revealCompteur").textContent =
+        item.index + " / " + item.total;
+});
+
+function voter(etoiles) {
+    if (aDejaVote) {
+        return;
+    }
+
+    aDejaVote = true;
+    socket.emit("voter", { code: monCode, etoiles: etoiles });
+    document.getElementById("messageVote").textContent = "Vote envoyé : " + etoiles + " étoile(s) !";
 }
+
+function forcerSuite() {
+    socket.emit("forcerSuite", monCode);
+}
+
+socket.on("classementFinal", (classement) => {
+    document.getElementById("ecranReveal").style.display = "none";
+    document.getElementById("ecranClassement").style.display = "block";
+
+    const liste = document.getElementById("listeClassement");
+    liste.innerHTML = "";
+
+    for (const joueur of classement) {
+        const item = document.createElement("li");
+        item.textContent = joueur.pseudo + " : " + joueur.points + " pts";
+        liste.appendChild(item);
+    }
+});

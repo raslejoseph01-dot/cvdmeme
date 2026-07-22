@@ -40,12 +40,31 @@
 
         <div id="apercuVisuel"></div>
     </div>
+
     <div id="ecranReveal" style="display: none;">
         <h2>Reveal !</h2>
         <p id="revealPhrase"></p>
         <div id="revealVisuel"></div>
+
+        <div id="zoneVote">
+            <p>Note ce visuel :</p>
+            <button onclick="voter(1)">⭐1</button>
+            <button onclick="voter(2)">⭐2</button>
+            <button onclick="voter(3)">⭐3</button>
+            <button onclick="voter(4)">⭐4</button>
+            <button onclick="voter(5)">⭐5</button>
+        </div>
+        <p id="messageVote"></p>
+
+        <button onclick="forcerSuite()">Forcer la suite</button>
         <p id="revealCompteur"></p>
     </div>
+
+    <div id="ecranClassement" style="display: none;">
+        <h2>Classement final 🏆</h2>
+        <ol id="listeClassement"></ol>
+    </div>
+
     <script src="/socket.io/socket.io.js"></script>
     <script src="script.js"></script>
 </body>

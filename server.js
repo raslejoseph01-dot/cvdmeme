@@ -53,11 +53,67 @@ function lancerReveal(code) {
 
         listeReveal.push({
             phrase: phraseOriginale,
-            lien: visuel.lien
+            lien: visuel.lien,
+            pseudoAuteur: pseudoQuiAChoisi
         });
     }
 
-    io.to(code).emit("demarrerReveal", listeReveal);
+    salle.revealListe = listeReveal;
+    salle.revealIndex = 0;
+    salle.scores = {};
+
+    for (const joueur of salle.joueurs) {
+        salle.scores[joueur] = 0;
+    }
+
+    envoyerItemReveal(code);
+}
+
+function envoyerItemReveal(code) {
+    const salle = salles[code];
+    const item = salle.revealListe[salle.revealIndex];
+
+    salle.votesActuels = {};
+
+    io.to(code).emit("revealItem", {
+        phrase: item.phrase,
+        lien: item.lien,
+        pseudoAuteur: item.pseudoAuteur,
+        index: salle.revealIndex + 1,
+        total: salle.revealListe.length
+    });
+}
+
+function passerAuSuivant(code) {
+    const salle = salles[code];
+
+    if (salle.timerReveal) {
+        clearTimeout(salle.timerReveal);
+        salle.timerReveal = null;
+    }
+
+    const item = salle.revealListe[salle.revealIndex];
+    let totalEtoiles = 0;
+
+    for (const pseudoVotant in salle.votesActuels) {
+        totalEtoiles += salle.votesActuels[pseudoVotant];
+    }
+
+    salle.scores[item.pseudoAuteur] += totalEtoiles;
+
+    salle.revealIndex++;
+
+    if (salle.revealIndex < salle.revealListe.length) {
+        envoyerItemReveal(code);
+    } else {
+        const classement = [];
+        for (const pseudo in salle.scores) {
+            classement.push({ pseudo: pseudo, points: salle.scores[pseudo] });
+        }
+        classement.sort((a, b) => b.points - a.points);
+
+        io.to(code).emit("classementFinal", classement);
+    }
 }
 
 io.on("connection", (socket) => {
@@ -124,6 +180,42 @@ io.on("connection", (socket) => {
             if (salles[code].visuels.length === salles[code].joueurs.length) {
                 lancerReveal(code);
             }
+        }
+    });
+
+    socket.on("voter", (donnees) => {
+        const code = donnees.code;
+        const etoiles = donnees.etoiles;
+        const pseudo = socket.data.pseudo;
+        const salle = salles[code];
+
+        if (!salle) {
+            return;
+        }
+
+        const item = salle.revealListe[salle.revealIndex];
+
+        if (pseudo === item.pseudoAuteur) {
+            return;
+        }
+
+        salle.votesActuels[pseudo] = etoiles;
+
+        const nombreVotants = salle.joueurs.length - 1;
+        const nombreVotes = Object.keys(salle.votesActuels).length;
+
+        if (nombreVotes >= nombreVotants) {
+            if (!salle.timerReveal) {
+                salle.timerReveal = setTimeout(() => {
+                    passerAuSuivant(code);
+                }, 5000);
+            }
+        }
+    });
+
+    socket.on("forcerSuite", (code) => {
+        if (salles[code] && salles[code].revealListe) {
+            passerAuSuivant(code);
         }
     });
 
