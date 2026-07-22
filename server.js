@@ -9,7 +9,38 @@ const io = new Server(serveur);
 app.use(express.static("."));
 
 const salles = {};
+function melangerTableau(tableau) {
+    const copie = [...tableau];
 
+    for (let i = copie.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        const temp = copie[i];
+        copie[i] = copie[j];
+        copie[j] = temp;
+    }
+
+    return copie;
+}
+
+function attribuerPhrases(code) {
+    const salle = salles[code];
+    const phrasesMelangees = melangerTableau(salle.phrases);
+
+    salle.attributions = {};
+
+    for (let i = 0; i < phrasesMelangees.length; i++) {
+        const phraseDecalee = phrasesMelangees[(i + 1) % phrasesMelangees.length];
+        salle.attributions[phrasesMelangees[i].pseudo] = phraseDecalee.texte;
+    }
+
+    for (const [socketId, socketConnecte] of io.sockets.sockets) {
+        if (socketConnecte.data.code === code) {
+            const pseudoJoueur = socketConnecte.data.pseudo;
+            const phraseAEnvoyer = salle.attributions[pseudoJoueur];
+            socketConnecte.emit("phraseAAssocier", phraseAEnvoyer);
+        }
+    }
+};
 io.on("connection", (socket) => {
     console.log("Un joueur s'est connecté !");
 
@@ -51,6 +82,10 @@ io.on("connection", (socket) => {
                 nombrePhrases: salles[code].phrases.length,
                 nombreJoueurs: salles[code].joueurs.length
             });
+
+            if (salles[code].phrases.length === salles[code].joueurs.length) {
+                attribuerPhrases(code);
+            }
         }
     });
 

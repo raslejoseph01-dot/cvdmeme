@@ -67,3 +67,9 @@ socket.on("statutEcriture", (donnees) => {
     document.getElementById("statutEcriture").textContent =
         donnees.nombrePhrases + " sur " + donnees.nombreJoueurs + " joueurs ont écrit leur phrase.";
 });
+
+socket.on("phraseAAssocier", (phrase) => {
+    document.getElementById("ecranEcriture").style.display = "none";
+    document.getElementById("ecranPhraseRecue").style.display = "block";
+    document.getElementById("affichagePhraseRecue").textContent = phrase;
+});
