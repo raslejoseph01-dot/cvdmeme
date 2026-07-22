@@ -8,32 +8,43 @@ const io = new Server(serveur);
 
 app.use(express.static("."));
 
-let joueurs = [];
-let codeSalle = null;
-
-function genererCodeSalle() {
-    const lettres = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
-    let code = "";
-
-    for (let i = 0; i < 4; i++) {
-        const indexAleatoire = Math.floor(Math.random() * lettres.length);
-        code += lettres[indexAleatoire];
-    }
-
-    return code;
-}
+const salles = {};
 
 io.on("connection", (socket) => {
     console.log("Un joueur s'est connecté !");
 
-    socket.on("nouveauJoueur", (pseudo) => {
-        joueurs.push(pseudo);
-        io.emit("listeJoueursMiseAJour", joueurs);
+    socket.on("rejoindreSalle", (donnees) => {
+        const pseudo = donnees.pseudo;
+        const code = donnees.code;
+
+        if (!salles[code]) {
+            salles[code] = { joueurs: [] };
+        }
+
+        socket.join(code);
+        socket.data.pseudo = pseudo;
+        socket.data.code = code;
+
+        salles[code].joueurs.push(pseudo);
+
+        io.to(code).emit("miseAJourSalle", {
+            code: code,
+            joueurs: salles[code].joueurs
+        });
     });
 
-    socket.on("creerSalle", () => {
-        codeSalle = genererCodeSalle();
-        io.emit("salleCreee", codeSalle);
+    socket.on("disconnect", () => {
+        const code = socket.data.code;
+        const pseudo = socket.data.pseudo;
+
+        if (code && salles[code]) {
+            salles[code].joueurs = salles[code].joueurs.filter((j) => j !== pseudo);
+
+            io.to(code).emit("miseAJourSalle", {
+                code: code,
+                joueurs: salles[code].joueurs
+            });
+        }
     });
 });
 

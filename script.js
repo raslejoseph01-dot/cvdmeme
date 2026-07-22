@@ -1,14 +1,20 @@
-function ajouterJoueur() {
+const socket = io();
+
+function rejoindreSalle() {
     const pseudo = document.getElementById("pseudo").value.trim();
+    const code = document.getElementById("codeSalle").value.trim().toUpperCase();
 
     if (pseudo === "") {
         document.getElementById("message").textContent = "Merci d'entrer un pseudo !";
         return;
     }
 
-    socket.emit("nouveauJoueur", pseudo);
-    document.getElementById("pseudo").value = "";
-    document.getElementById("message").textContent = "";
+    if (code === "") {
+        document.getElementById("message").textContent = "Merci d'entrer un code de salle !";
+        return;
+    }
+
+    socket.emit("rejoindreSalle", { pseudo: pseudo, code: code });
 }
 
 function afficherJoueurs(listeJoueurs) {
@@ -22,16 +28,9 @@ function afficherJoueurs(listeJoueurs) {
     }
 }
 
-function creerSalle() {
-    socket.emit("creerSalle");
-}
-
-const socket = io();
-
-socket.on("listeJoueursMiseAJour", (listeJoueurs) => {
-    afficherJoueurs(listeJoueurs);
-});
-
-socket.on("salleCreee", (code) => {
-    document.getElementById("codeSalle").textContent = "Code de la salle : " + code;
+socket.on("miseAJourSalle", (donnees) => {
+    document.getElementById("ecranAccueil").style.display = "none";
+    document.getElementById("ecranSalle").style.display = "block";
+    document.getElementById("affichageCodeSalle").textContent = donnees.code;
+    afficherJoueurs(donnees.joueurs);
 });
